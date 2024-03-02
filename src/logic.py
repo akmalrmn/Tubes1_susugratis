@@ -7,7 +7,6 @@ class RandomDiamondLogic(object):
     def __init__(self):
         self.max_distance_base = 0
         self.goal_position = None
-        self.turn_direction = 1
         self.max_distance_bot = 0
 
     def recursive_search(self, diamonds, x, y, base, bot_position, visited):
@@ -17,10 +16,8 @@ class RandomDiamondLogic(object):
         visited.append((x, y))
         points = 0
         ada = False
-        print("wwwww")
         for diamond in diamonds:
             if (diamond.position.x == x and diamond.position.y == y):
-                print("ada2")
                 ada = True
                 points += diamond.properties.points
                 self.max_distance_base = max(self.max_distance_base, abs(
@@ -30,7 +27,6 @@ class RandomDiamondLogic(object):
                 break
 
         if ada:
-            print("ada")
             if (x + 1, y) not in visited:
                 points += self.recursive_search(
                     diamonds, x, y, base, bot_position, visited)[0]
@@ -57,18 +53,18 @@ class RandomDiamondLogic(object):
             diamonds = board.diamonds
             worth = 0
             for diamond in diamonds:
+                if props.diamonds == 4 and diamond.properties.points == 2:
+                    continue
                 point, visited = self.recursive_search(
                     diamonds, diamond.position.x, diamond.position.y, base, current_position, visited)
                 jarak = self.max_distance_base + self.max_distance_bot
-                print(self.max_distance_base)
-                print(self.max_distance_bot)
 
                 if jarak != 0:
                     worth = max(worth, point / jarak)
                     if worth == point / jarak:
-                        self.goal_position = diamond.position
+                            self.goal_position = diamond.position
                 self.max_distance_base = 0
-            print("test")
+                self.max_distance_bot = 0
         delta_x, delta_y = get_direction(
             current_position.x,
             current_position.y,
