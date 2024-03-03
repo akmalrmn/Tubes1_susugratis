@@ -55,10 +55,14 @@ class RandomDiamondLogic(object):
         return points, visited
 
     def next_move(self, board_bot, board):
-        teleport1 = board.game_objects[0]
-        teleport2 = board.game_objects[1]
-        restart_button = board.game_objects[2]
+        for i in range(len(board.game_objects)):
+            if board.game_objects[i].type == "TeleportGameObject":
+                teleport2 = board.game_objects[i]
+                indeks = i
+            elif board.game_objects[i].type == "DiamondButtonGameObject":
+                restart_button = board.game_objects[i]
 
+        teleport1 = board.game_objects[indeks-1]
         visited = []
         props = board_bot.properties
         current_position = board_bot.position
@@ -82,7 +86,7 @@ class RandomDiamondLogic(object):
 
                     if worth == point / jarak:
                         self.goal_position = diamond.position
-                        if props.milliseconds_left < 20000 and jarak > props.milliseconds_left / 1000:
+                        if props.milliseconds_left < 20000 and jarak > props.milliseconds_left / 100:
                             self.goal_position = base
                         elif jarak_reset != 0:
                             worth_restart = 0.75 / jarak_reset
@@ -102,4 +106,5 @@ class RandomDiamondLogic(object):
             teleport2.position.y,
             base,
         )
+        print(self.goal_position.x, self.goal_position.y, "\n\n")
         return delta_x, delta_y
