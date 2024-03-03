@@ -5,7 +5,7 @@ def clamp(n, smallest, largest):
     return max(smallest, min(n, largest))
 
 
-def get_direction(current_x, current_y, dest_x, dest_y, teleport1_x, teleport1_y, teleport2_x, teleport2_y):
+def get_direction(current_x, current_y, dest_x, dest_y, teleport1_x, teleport1_y, teleport2_x, teleport2_y, base):
     delta_x = clamp(dest_x - current_x, -1, 1)
     delta_y = clamp(dest_y - current_y, -1, 1)
     print("delta_x: ", delta_x)
@@ -37,11 +37,11 @@ def get_direction(current_x, current_y, dest_x, dest_y, teleport1_x, teleport1_y
                 delta_x = -1
             else:
                 delta_x = 1
-    if current_x + delta_x == dest_x and (current_x + delta_x, current_y + dest_y) in [(teleport1_x, teleport1_y), (teleport2_x, teleport2_y)]:
+    if (current_x + delta_x == dest_x or current_x + delta_x == base.x) and (current_x + delta_x, current_y + dest_y) in [(teleport1_x, teleport1_y), (teleport2_x, teleport2_y)]:
             print("teleport0\n\n")
             delta_x = 0
             delta_y = clamp(dest_y - current_y, -1, 1)
-    elif current_y + delta_y == dest_y and (current_x + delta_x, current_y + dest_y) in [(teleport1_x, teleport1_y), (teleport2_x, teleport2_y)]:
+    elif (current_y + delta_y == dest_y or current_y + delta_y == base.y) and (current_x + delta_x, current_y + dest_y) in [(teleport1_x, teleport1_y), (teleport2_x, teleport2_y)]:
         print("teleport0\n\n")
         delta_x = clamp(dest_x - current_x, -1, 1)
         delta_y = 0

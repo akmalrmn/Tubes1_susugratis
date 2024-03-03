@@ -100,5 +100,6 @@ class RandomDiamondLogic(object):
             teleport1.position.y,
             teleport2.position.x,
             teleport2.position.y,
+            base,
         )
         return delta_x, delta_y
