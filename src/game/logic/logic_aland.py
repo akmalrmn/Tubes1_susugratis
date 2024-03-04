@@ -64,23 +64,25 @@ class RandomLogic(BaseLogic):
             visited = set()
             value = self.hitung_diamonds_berdekatan_recursively(Boards.diamonds[i].position.x, Boards.diamonds[i].position.y, Boards, visited)
             distance = abs(Boards.diamonds[i].position.x-Board_bot.position.x) + abs(Boards.diamonds[i].position.y-Board_bot.position.y)
-            worth = value/distance
-            if worth > maksimumpoints:
-                maksimumpoints = worth
-                maksimumindeks = i
+            if value > 0 and distance > 0:
+                worth = value/distance
+                if worth > maksimumpoints:
+                    maksimumpoints = worth
+                    maksimumindeks = i
         return maksimumindeks
 
-    def next_move(self, board_bot: GameObject, board: Board):
+    def next_move_antara(self, board_bot: GameObject, board: Board):
         props = board_bot.properties
-
-        if props.diamonds == 5:
+        current_position = board_bot.position
+        maks_indeks = self.getNearestDiamonds(board_bot, board)
+        jarak = abs(board.diamonds[maks_indeks].position.x-board_bot.position.x) + abs(board.diamonds[maks_indeks].position.y-board_bot.position.y)
+        if props.diamonds == 5 or (props.diamonds == 4 and board.diamonds[maks_indeks].properties.points == 2) or (props.milliseconds_left < 20000 and jarak > props.milliseconds_left/1000):
             current_position = board_bot.position
             base = board_bot.properties.base
             self.goal_position = base
-            
+        elif (len(board.diamonds) <= 7):
+            self.goal_position = board.game_objects[2].position    
         else:
-            current_position = board_bot.position
-            maks_indeks = self.getNearestDiamonds(board_bot, board)
             self.goal_position = board.diamonds[maks_indeks].position
         delta_x, delta_y = get_direction(
             current_position.x,
@@ -88,4 +90,25 @@ class RandomLogic(BaseLogic):
             self.goal_position.x,
             self.goal_position.y,
         )
+        return delta_x, delta_y, self.goal_position
+    
+    def next_move(self, board_bot: GameObject, board: Board):
+        current_position = board_bot.position
+        delta_x, delta_y, goal_position = self.next_move_antara(board_bot, board)
+        next_coordinate = (current_position.x + delta_x, current_position.y + delta_y)
+        if (next_coordinate == board.game_objects[0].position or next_coordinate == board.game_objects[1].position):
+            if delta_x != 0:
+                if goal_position.y > current_position.y:
+                    delta_x = 0
+                    delta_y = 1
+                else:
+                    delta_x = 0
+                    delta_y = -1
+            else:
+                if goal_position.x > current_position.x:
+                    delta_x = 1
+                    delta_y = 0
+                else:
+                    delta_x = -1
+                    delta_y = 0
         return delta_x, delta_y
