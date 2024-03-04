@@ -1,5 +1,5 @@
 import random
-from ..util import get_direction, position_equals
+from ..util import position_equals, clamp
 from typing import List
 
 
@@ -8,6 +8,46 @@ class RandomDiamondLogic(object):
         self.max_distance_base = 0
         self.goal_position = None
         self.max_distance_bot = 0
+        self.move = Move()
+
+    def get_direction(self, current_x, current_y, dest_x, dest_y, teleport1_x, teleport1_y, teleport2_x, teleport2_y, base):
+        delta_x = clamp(dest_x - current_x, -1, 1)
+        delta_y = clamp(dest_y - current_y, -1, 1)
+        self.move.future_move_x = 0
+        self.move.future_move_y = 0
+        print("delta_x: ", delta_x)
+        print("delta_y: ", delta_y)
+        print("current_x: ", current_x)
+        print("current_y: ", current_y)
+        print("teleport1: ", teleport1_x, teleport1_y)
+        print("teleport2: ", teleport2_x, teleport2_y)
+
+        if delta_x != 0 and delta_y != 0:
+            if (current_x + delta_x, current_y) not in [(teleport1_x, teleport1_y), (teleport2_x, teleport2_y)]:
+                delta_y = 0
+            else:
+                print("TES11111111\n\n")
+                delta_x = 0
+        elif delta_x != 0 and delta_y == 0:
+            if (current_x + delta_x, current_y) in [(teleport1_x, teleport1_y), (teleport2_x, teleport2_y)]:
+                print("TES222222222\n\n")
+                self.move.future_move_x = delta_x
+                delta_x = 0
+                if current_y == 14:
+                    delta_y = 1
+                else:
+                    delta_y = 1
+        elif delta_x == 0 and delta_y != 0:
+            if (current_x, current_y + delta_y) in [(teleport1_x, teleport1_y), (teleport2_x, teleport2_y)]:
+                print("TES3333333333\n\n")
+                self.move.future_move_y = delta_y
+                delta_y = 0
+                if current_x == 14:
+                    delta_x = -1
+                else:
+                    delta_x = 1
+
+        return delta_x, delta_y
 
     def recursive_search(self, diamonds, x, y, base, bot_position, visited):
         if x > 14 or y > 14 or x < 0 or y < 0 or (x, y) in visited:
@@ -54,17 +94,20 @@ class RandomDiamondLogic(object):
 
         return points, visited
 
-    def next_move(self, board_bot, board, future_move_x, future_move_y, teleport1, teleport2, restart_button_index):
-        if future_move_x != 0 or future_move_y != 0:
-            delta_x = future_move_x
-            delta_y = future_move_y
-            future_move_x = 0
-            future_move_y = 0
-            return delta_x, delta_y, future_move_x, future_move_y
+    def next_move(self, board_bot, board):
+        if self.move.initiating == False:
+            self.move.initialize(board)
+        if self.move.future_move_x != 0 or self.move.future_move_y != 0:
+            delta_x = self.move.future_move_x
+            delta_y = self.move.future_move_y
+            self.move.future_move_x = 0
+            self.move.future_move_y = 0
+            return delta_x, delta_y
         else:
-            teleport1 = board.game_objects[teleport1]
-            teleport2 = board.game_objects[teleport2]
-            restart_button = board.game_objects[restart_button_index]
+            print(self.move.teleport1, "\n\n\n")
+            teleport1 = board.game_objects[self.move.teleport1]
+            teleport2 = board.game_objects[self.move.teleport2]
+            restart_button = board.game_objects[self.move.restart_button]
             visited = []
             props = board_bot.properties
             current_position = board_bot.position
@@ -97,7 +140,7 @@ class RandomDiamondLogic(object):
                                     self.goal_position = restart_button.position
                     self.max_distance_base = 0
                     self.max_distance_bot = 0
-            delta_x, delta_y, future_move_x, future_move_y = get_direction(
+            delta_x, delta_y = self.get_direction(
                 current_position.x,
                 current_position.y,
                 self.goal_position.x,
@@ -109,4 +152,20 @@ class RandomDiamondLogic(object):
                 base,
             )
             print(self.goal_position.x, self.goal_position.y, "\n\n")
-            return delta_x, delta_y, future_move_x, future_move_y
+            return delta_x, delta_y
+
+
+class Move:
+    def __init__(self):
+        self.future_move_x = 0
+        self.future_move_y = 0
+        self.initiating = False
+
+    def initialize(self, board):
+        for i in range(len(board.game_objects)):
+            if board.game_objects[i].type == "TeleportGameObject":
+                self.teleport2 = i
+            elif board.game_objects[i].type == "DiamondButtonGameObject":
+                self.restart_button = i
+        self.teleport1 = self.teleport2 - 1
+        print(self.teleport1, self.teleport2, self.restart_button, "\n\n")

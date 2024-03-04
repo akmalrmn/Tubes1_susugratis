@@ -169,12 +169,6 @@ if not current_board_id:
 ###############################################################################
 board = board_handler.get_board(current_board_id)
 move_delay = board.minimum_delay_between_moves / 1000
-for i in range(len(board.game_objects)):
-    if board.game_objects[i].type == "TeleportGameObject":
-        teleport2 = i
-    elif board.game_objects[i].type == "DiamondButtonGameObject":
-        restart_button = i
-teleport1 = teleport2 - 1
 
 ###############################################################################
 #
@@ -182,8 +176,7 @@ teleport1 = teleport2 - 1
 #
 ###############################################################################
 count = 0
-future_move_x = 0
-future_move_y = 0
+
 while True:
     # Find our info among the bots on the board
     board_bot = board.get_bot(bot)
@@ -193,8 +186,8 @@ while True:
 
     # Calculate next move
     time_start = time.time()
-    delta_x, delta_y, future_move_x, future_move_y = bot_logic.next_move(
-        board_bot, board, future_move_x, future_move_y, teleport1, teleport2, restart_button)
+    delta_x, delta_y = bot_logic.next_move(
+        board_bot, board)
     time_end = time.time()
     elapsed_time = (time_end - time_start) * 1000  # Convert to milliseconds
     print("Time to calculate move: ", elapsed_time, "ms")
