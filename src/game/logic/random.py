@@ -9,7 +9,7 @@ class RandomDiamondLogic(object):
         self.goal_position = None
         self.max_distance_bot = 0
 
-    def recursive_search(self, diamonds, x, y, base, bot_position, visited, teleport1, teleport2):
+    def recursive_search(self, diamonds, x, y, base, bot_position, visited):
         if x > 14 or y > 14 or x < 0 or y < 0 or (x, y) in visited:
             return 0, visited
 
@@ -78,7 +78,7 @@ class RandomDiamondLogic(object):
                     if props.diamonds == 4 and diamond.properties.points == 2:
                         continue
                     point, visited = self.recursive_search(
-                        diamonds, diamond.position.x, diamond.position.y, base, current_position, visited, teleport1, teleport2)
+                        diamonds, diamond.position.x, diamond.position.y, base, current_position, visited)
                     jarak = self.max_distance_base + self.max_distance_bot
                     if jarak != 0:
                         jarak_reset = abs(restart_button.position.x - current_position.x) + abs(restart_button.position.y -
@@ -88,7 +88,7 @@ class RandomDiamondLogic(object):
 
                         if worth == point / jarak:
                             self.goal_position = diamond.position
-                            if props.milliseconds_left < 20000 and jarak > props.milliseconds_left / 100:
+                            if props.milliseconds_left < 20000 and jarak > props.milliseconds_left / 1000:
                                 self.goal_position = base
                             elif jarak_reset != 0:
                                 worth_restart = 0.75 / jarak_reset
