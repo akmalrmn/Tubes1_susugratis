@@ -8,6 +8,8 @@ def clamp(n, smallest, largest):
 def get_direction(current_x, current_y, dest_x, dest_y, teleport1_x, teleport1_y, teleport2_x, teleport2_y, base):
     delta_x = clamp(dest_x - current_x, -1, 1)
     delta_y = clamp(dest_y - current_y, -1, 1)
+    future_move_x = 0
+    future_move_y = 0
     print("delta_x: ", delta_x)
     print("delta_y: ", delta_y)
     print("current_x: ", current_x)
@@ -24,6 +26,7 @@ def get_direction(current_x, current_y, dest_x, dest_y, teleport1_x, teleport1_y
     elif delta_x != 0 and delta_y == 0:
         if (current_x + delta_x, current_y) in [(teleport1_x, teleport1_y), (teleport2_x, teleport2_y)]:
             print("TES222222222\n\n")
+            future_move_x = delta_x
             delta_x = 0
             if current_y == 14:
                 delta_y = 1
@@ -32,22 +35,14 @@ def get_direction(current_x, current_y, dest_x, dest_y, teleport1_x, teleport1_y
     elif delta_x == 0 and delta_y != 0:
         if (current_x, current_y + delta_y) in [(teleport1_x, teleport1_y), (teleport2_x, teleport2_y)]:
             print("TES3333333333\n\n")
+            future_move_y = delta_y
             delta_y = 0
             if current_x == 14:
                 delta_x = -1
             else:
                 delta_x = 1
-    if (current_x + delta_x == dest_x or current_x + delta_x == base.x) and (current_x + delta_x, current_y + clamp(dest_y - current_y, -1, 1)) in [(teleport1_x, teleport1_y), (teleport2_x, teleport2_y)]:
-        print("teleport00\n\n")
-        delta_x = 0
-        delta_y = clamp(dest_y - current_y, -1, 1)
-    elif (current_y + delta_y == dest_y or current_y + delta_y == base.y) and (current_x + delta_x, current_y + clamp(dest_x - current_x, -1, 1)) in [(teleport1_x, teleport1_y), (teleport2_x, teleport2_y)]:
-        print("teleport01\n\n")
-        delta_x = clamp(dest_x - current_x, -1, 1)
-        delta_y = 0
-    print("delta_x1: ", delta_x)
-    print("delta_y2: ", delta_y)
-    return delta_x, delta_y
+   
+    return delta_x, delta_y, future_move_x, future_move_y
 
 
 def position_equals(a: Position, b: Position):
