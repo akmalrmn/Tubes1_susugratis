@@ -50,10 +50,11 @@ class RandomDiamondLogic(object):
         return delta_x, delta_y
 
     def recursive_search(self, diamonds, x, y, base, bot_position, visited):
-        if x > 14 or y > 14 or x < 0 or y < 0 or (x, y) in visited:
+        if x > 14 or y > 14 or x < 0 or y < 0:
             return 0, visited
-
-        visited.append((x, y))
+        if (x, y) in visited:
+            return 0, visited
+        visited.add((x, y))
         points = 0
         ada = False
         for diamond in diamonds:
@@ -97,6 +98,7 @@ class RandomDiamondLogic(object):
     def next_move(self, board_bot, board):
         if self.move.initiating == False:
             self.move.initialize(board)
+
         if self.move.future_move_x != 0 or self.move.future_move_y != 0:
             delta_x = self.move.future_move_x
             delta_y = self.move.future_move_y
@@ -108,20 +110,26 @@ class RandomDiamondLogic(object):
             teleport1 = board.game_objects[self.move.teleport1]
             teleport2 = board.game_objects[self.move.teleport2]
             restart_button = board.game_objects[self.move.restart_button]
-            visited = []
+            visited = set()
             props = board_bot.properties
             current_position = board_bot.position
             base = props.base
             if props.diamonds == 5:
                 self.goal_position = base
             else:
+                calculated_diamonds = set()
                 diamonds = board.diamonds
                 worth = 0
                 for diamond in diamonds:
+                    if diamond in calculated_diamonds:
+                        continue
                     if props.diamonds == 4 and diamond.properties.points == 2:
+                        continue
+                    elif (current_position.x, current_position.y, teleport1.position.x, teleport2.position.y) in [(0, 0, 1, 1), (0, 14, 1, 13), (14, 0, 13, 1), (14, 14, 13, 13)]:
                         continue
                     point, visited = self.recursive_search(
                         diamonds, diamond.position.x, diamond.position.y, base, current_position, visited)
+                    calculated_diamonds.add(diamond)
                     jarak = self.max_distance_base + self.max_distance_bot
                     if jarak != 0:
                         jarak_reset = abs(restart_button.position.x - current_position.x) + abs(restart_button.position.y -
