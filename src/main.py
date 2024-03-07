@@ -1,13 +1,11 @@
 import argparse
 from time import sleep
-import time
+
 from colorama import Back, Fore, Style, init
 from game.api import Api
 from game.board_handler import BoardHandler
 from game.bot_handler import BotHandler
-from game.logic.random import RandomLogic
-from game.logic.first_diamond import FirstDiamondLogic
-from game.logic.random_diamond import RandomDiamondLogic
+from game.logic.mainLogic import Logic
 from game.util import *
 from game.logic.base import BaseLogic
 
@@ -15,9 +13,7 @@ init()
 BASE_URL = "http://localhost:3000/api"
 DEFAULT_BOARD_ID = 1
 CONTROLLERS = {
-    "Random": RandomLogic,
-    "Random2": FirstDiamondLogic,
-    "Random3": RandomDiamondLogic,
+    "logic": Logic,
 }
 
 ###############################################################################
@@ -32,15 +28,12 @@ group.add_argument(
     help="A bot token to use when running using an existing bot",
     action="store",
 )
-group.add_argument(
-    "--name", help="The name of the bot to register", action="store")
-parser.add_argument(
-    "--email", help="The email of the bot to register", action="store")
+group.add_argument("--name", help="The name of the bot to register", action="store")
+parser.add_argument("--email", help="The email of the bot to register", action="store")
 parser.add_argument(
     "--password", help="The password of the bot to register", action="store"
 )
-parser.add_argument(
-    "--team", help="The team of the bot to register", action="store")
+parser.add_argument("--team", help="The team of the bot to register", action="store")
 parser.add_argument(
     "--board", help="Id of the board to join", default=DEFAULT_BOARD_ID, action="store"
 )
@@ -77,8 +70,7 @@ if not args.token:
     recovered_token = bot_handler.recover(args.email, args.password)
     args.token = recovered_token
     if not recovered_token:
-        bot = bot_handler.register(
-            args.name, args.email, args.password, args.team)
+        bot = bot_handler.register(args.name, args.email, args.password, args.team)
         if bot:
             print("")
             print(
@@ -115,8 +107,7 @@ if logic_controller not in CONTROLLERS:
     exit(1)
 
 if not bot.name:
-    print(Fore.RED + Style.BRIGHT + "Error: " +
-          Style.RESET_ALL + "Bot does not exist")
+    print(Fore.RED + Style.BRIGHT + "Error: " + Style.RESET_ALL + "Bot does not exist")
     exit(1)
 print(Fore.BLUE + Style.BRIGHT + "Welcome back, " + Style.RESET_ALL + bot.name)
 
@@ -169,21 +160,12 @@ if not current_board_id:
 ###############################################################################
 board = board_handler.get_board(current_board_id)
 move_delay = board.minimum_delay_between_moves / 1000
-for i in range(len(board.game_objects)):
-    if board.game_objects[i].type == "TeleportGameObject":
-        teleport2 = i
-    elif board.game_objects[i].type == "DiamondButtonGameObject":
-        restart_button = i
-teleport1 = teleport2 - 1
 
 ###############################################################################
 #
 # Game play loop
 #
 ###############################################################################
-count = 0
-future_move_x = 0
-future_move_y = 0
 while True:
     # Find our info among the bots on the board
     board_bot = board.get_bot(bot)
@@ -192,12 +174,7 @@ while True:
         break
 
     # Calculate next move
-    time_start = time.time()
-    delta_x, delta_y, future_move_x, future_move_y = bot_logic.next_move(
-        board_bot, board, future_move_x, future_move_y, teleport1, teleport2, restart_button)
-    time_end = time.time()
-    elapsed_time = (time_end - time_start) * 1000  # Convert to milliseconds
-    print("Time to calculate move: ", elapsed_time, "ms")
+    delta_x, delta_y = bot_logic.next_move(board_bot, board)
     # delta_x, delta_y = (1, 0)
     if not board.is_valid_move(board_bot.position, delta_x, delta_y):
         print(
@@ -223,12 +200,11 @@ while True:
     if not board_bot:
         # Managed to get game over after move
         break
-    count += 1
+
     # Don't spam the board more than it allows!
     # sleep(move_delay * time_factor)
-    print(board_bot.properties.milliseconds_left)
     sleep(1)
-    print(count)
+
 
 ###############################################################################
 #
