@@ -30,7 +30,7 @@ susugratis
 │   ├── run-bots.bat
 │   ├── run-bots.sh
 │   └── README.md  
-├── img ()
+├── img (GameEngineWithBots.png)
 └── README.md
 ```
 
