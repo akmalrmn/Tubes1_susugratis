@@ -1,7 +1,14 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+<div align="center">
+  <h1>💎 Greedy Algorithms in “DIAMONDS” Game Bot </h1>
+  <h3>Tugas Besar 1 IF2211 Strategi Algoritma</h3>
+  <p>By susugratis</p>
+  <img src="img/susugratis.jpg" alt="susugratis" width="350"/>
+  <br/>
+  <br/>
+</div>
 
-# 💎 Greedy Algorithms in “DIAMONDS” Game Bot
-🎓 Project Background: We created the greedy algorithms in "DIAMONDS" game bot as part of my Algorithm Strategies assignment during my fourth semester in the Computer Science program at ITB.
+>🎓 Project Background: We created the greedy algorithms in "DIAMONDS" game bot as part of my Algorithm Strategies assignment during my fourth semester in the Computer Science program at ITB.
 ## 📝 Description
 Diamonds is a programming challenge that pits the bot you create against bots from other players. Each player will have a bot where the goal of this bot is to collect as many diamonds as possible by using greedy algorithms. There are several main components of the greedy algorithm in this program, namely greedy by diamonds, teleporters, diamond game button, base, and milliseconds left.
 ## 📁 Project Structure
@@ -67,7 +74,14 @@ susugratis
 4. to run the bot you can execute the logic by using `python main.py --logic logic --email=komeng@email.com --name=komeng --password=123456 --team etimo`.
 5. For windows you can also run the bot by executing `./run-bots.bat` and also for linux you can run the bot by executing `./run-bots.sh`.
 
-## Screenshots
+## 🪪 Contributors
+| NIM | Name | Linkedin |
+| :---: | :---: | :---: |
+| 13522124 | Aland Mulia Pratama | [LinkedIn](https://www.linkedin.com/in/aland-m/) |
+| 13522161 | Mohamad Akmal Ramadan | [LinkedIn](https://www.linkedin.com/in/akmalrmn/) |
+| 13522163 | Atqiya Haydar Luqman | [LinkedIn](https://www.linkedin.com/in/atqiyahaydar/) |
+
+## 📸 Screenshots
 <div align="center" >
   <img src="img/GameEngineWithBots.png" alt="Game Engine" width="750"/>
   <p><b>Game Engine with Bots</b></p>
