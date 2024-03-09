@@ -169,6 +169,10 @@ class Logic(object):
                         worth = max(worth, value)
                         min_jarak = min(min_jarak, jarak)
 
+                        if cari_terdekat:
+                            if min_jarak == jarak:
+                                self.goal_position = diamond.position
+
                         if worth == value:  # jika worth sama dengan value
                             self.goal_position = diamond.position
                             # jika waktu yang tersisa kurang dari 30 detik dan jarak lebih besar dari waktu yang tersisa dibagi 1000
