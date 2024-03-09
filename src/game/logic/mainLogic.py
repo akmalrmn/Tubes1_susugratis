@@ -181,15 +181,15 @@ class Logic(object):
                                     else:
                                         self.goal_position = base
                                         cari_terdekat = True
+                            # jika jarak_base kurang dari sama dengan jarak
+                            if jarak_base <= jarak and current_position != base and props.diamonds != 0:
+                                if (current_position.x > base.x > diamond.position.x or current_position.y > base.y > diamond.position.y or current_position.x < base.x < diamond.position.x or current_position.y < base.y < diamond.position.y):
+                                    self.goal_position = base
                             elif jarak_reset != 0:  # jika jarak_reset tidak sama dengan 0
                                 worth_restart = 1 / jarak_reset
                                 # jika worth kurang dari worth_restart dan posisi restart_button tidak sama dengan posisi bot
                                 if worth < worth_restart and restart_button.position != current_position:
                                     self.goal_position = restart_button.position
-                            # jika jarak_base kurang dari sama dengan jarak
-                            if jarak_base <= jarak and current_position != base and props.diamonds != 0:
-                                if (current_position.x > base.x > diamond.position.x or current_position.y > base.y > diamond.position.y or current_position.x < base.x < diamond.position.x or current_position.y < base.y < diamond.position.y):
-                                    self.goal_position = base
                     self.max_distance_base = 0
                     self.max_distance_bot = 0
             delta_x, delta_y = self.get_direction(  # mencari arah gerak bot
