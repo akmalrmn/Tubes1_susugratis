@@ -181,7 +181,7 @@ class Logic(object):
                                     else:
                                         self.goal_position = base
                                         cari_terdekat = True
-                            if jarak_reset != 0:  # jika jarak_reset tidak sama dengan 0
+                            elif jarak_reset != 0:  # jika jarak_reset tidak sama dengan 0
                                 worth_restart = 1 / jarak_reset
                                 # jika worth kurang dari worth_restart dan posisi restart_button tidak sama dengan posisi bot
                                 if worth < worth_restart and restart_button.position != current_position:
