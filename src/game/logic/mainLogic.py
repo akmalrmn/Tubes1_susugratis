@@ -38,7 +38,6 @@ class Logic(object):
             if ((current_x + delta_x, current_y) not in [(teleport1_x, teleport1_y), (teleport2_x, teleport2_y)]) and ((current_x + delta_x, current_y + delta_y) not in [(teleport1_x, teleport1_y), (teleport2_x, teleport2_y)]):
                 delta_y = 0
             elif ((current_x + delta_x, current_y + delta_y) in [(teleport1_x, teleport1_y), (teleport2_x, teleport2_y)]):
-                print('tess\n\n\n\n\n\n')
                 delta_x = 0
             else:
                 delta_x = 0
@@ -132,12 +131,13 @@ class Logic(object):
             props = board_bot.properties
             current_position = board_bot.position
             base = props.base
-            jarak_base = abs(base.x - current_position.x) + abs(base.y - current_position.y)
+            jarak_base = abs(base.x - current_position.x) + \
+                abs(base.y - current_position.y)
             jarak_reset = abs(restart_button.position.x - current_position.x) + abs(restart_button.position.y -
                                                                                     current_position.y) + abs(restart_button.position.x - base.x) + abs(restart_button.position.y - base.y)
             if props.diamonds == 5:  # jika diamond yang ditemukan sudah 5
                 # jika jarak_reset lebih kecil dari jarak antara bot dan base
-                if jarak_reset<= jarak_base + 1:
+                if jarak_reset <= jarak_base + 1:
                     self.goal_position = restart_button.position
                 else:  # jika jarak_reset lebih besar dari jarak antara bot dan base
                     self.goal_position = base
@@ -169,38 +169,27 @@ class Logic(object):
                         worth = max(worth, value)
                         min_jarak = min(min_jarak, jarak)
 
-                        if cari_terdekat or props.milliseconds_left < 15000:
-                            if jarak > props.milliseconds_left / 1000 and props.diamonds != 0:
-                                self.goal_position = base
-                                cari_terdekat = True
-                            elif min_jarak == jarak:
-                                self.goal_position = diamond.position
-
-                        elif worth == value:  # jika worth sama dengan value
-
-                            if min_jarak < jarak and temp == worth:  # jika min_jarak sama dengan jarak
-                                print("sattt\n\n\n\n\n\n")
-                                continue
+                        if worth == value:  # jika worth sama dengan value
                             self.goal_position = diamond.position
                             # jika waktu yang tersisa kurang dari 30 detik dan jarak lebih besar dari waktu yang tersisa dibagi 1000
                             if props.milliseconds_left < 30000:
+                                if min_jarak == jarak:
+                                    self.goal_position = diamond.position
                                 if jarak > props.milliseconds_left / 1000 and props.diamonds != 0:
-                                    self.goal_position = base
-                                    cari_terdekat = True
-                                    continue
-                            # jika jarak_base kurang dari sama dengan jarak
-                            if jarak_base <= jarak and current_position != base and props.diamonds != 0:
-                                if (current_position.x > base.x > diamond.position.x or current_position.y > base.y > diamond.position.y or current_position.x < base.x < diamond.position.x or current_position.y < base.y < diamond.position.y):
-                                    print("base\n\n\n\n\n\n")
-                                    self.goal_position = base
-                            elif jarak_reset != 0:  # jika jarak_reset tidak sama dengan 0
+                                    if jarak_reset <= jarak_base + 4 and jarak_reset+4 <= props.milliseconds_left/1000:
+                                        self.goal_position = restart_button.position
+                                    else:
+                                        self.goal_position = base
+                                        cari_terdekat = True
+                            if jarak_reset != 0:  # jika jarak_reset tidak sama dengan 0
                                 worth_restart = 1 / jarak_reset
                                 # jika worth kurang dari worth_restart dan posisi restart_button tidak sama dengan posisi bot
                                 if worth < worth_restart and restart_button.position != current_position:
                                     self.goal_position = restart_button.position
-                            print("\n\na= ", point)
-                            print(jarak)
-                            print(self.max_distance_bot)
+                            # jika jarak_base kurang dari sama dengan jarak
+                            if jarak_base <= jarak and current_position != base and props.diamonds != 0:
+                                if (current_position.x > base.x > diamond.position.x or current_position.y > base.y > diamond.position.y or current_position.x < base.x < diamond.position.x or current_position.y < base.y < diamond.position.y):
+                                    self.goal_position = base
                     self.max_distance_base = 0
                     self.max_distance_bot = 0
             delta_x, delta_y = self.get_direction(  # mencari arah gerak bot
@@ -212,5 +201,4 @@ class Logic(object):
                 teleport2.position.y,
                 base,
             )
-
             return delta_x, delta_y
