@@ -35,9 +35,12 @@ class Logic(object):
         # algoritma untuk menghindar dari teleport
         if delta_x != 0 and delta_y != 0:  # jika delta_x dan delta_y tidak sama dengan 0
             # jika posisi bot tidak sama dengan posisi teleport
-            if (current_x + delta_x, current_y) not in [(teleport1_x, teleport1_y), (teleport2_x, teleport2_y)]:
+            if ((current_x + delta_x, current_y) not in [(teleport1_x, teleport1_y), (teleport2_x, teleport2_y)]) and ((current_x + delta_x, current_y + delta_y) not in [(teleport1_x, teleport1_y), (teleport2_x, teleport2_y)]):
                 delta_y = 0
-            else:  # jika posisi bot sama dengan posisi teleport
+            elif ((current_x + delta_x, current_y + delta_y) in [(teleport1_x, teleport1_y), (teleport2_x, teleport2_y)]):
+                print('tess\n\n\n\n\n\n')
+                delta_x = 0
+            else:
                 delta_x = 0
         elif delta_x != 0 and delta_y == 0:
             if (current_x + delta_x, current_y) in [(teleport1_x, teleport1_y), (teleport2_x, teleport2_y)]:
@@ -85,28 +88,28 @@ class Logic(object):
         if ada:  # jika diamond ditemukan
             if (current_x + 1, current_y) not in visited and current_x + 1 < 15:
                 points += self.recursive_search(
-                    diamonds, current_x, current_y, base, bot_position, visited)[0]
+                    diamonds, current_x + 1, current_y, base, bot_position, visited)[0]
             if (current_x - 1, current_y) not in visited and current_x - 1 >= 0:
                 points += self.recursive_search(
-                    diamonds, current_x, current_y, base, bot_position, visited)[0]
+                    diamonds, current_x - 1, current_y, base, bot_position, visited)[0]
             if (current_x, current_y + 1) not in visited and current_y + 1 < 15:
                 points += self.recursive_search(
-                    diamonds, current_x, current_y, base, bot_position, visited)[0]
+                    diamonds, current_x, current_y + 1, base, bot_position, visited)[0]
             if (current_x, current_y - 1) not in visited and current_y - 1 >= 0:
                 points += self.recursive_search(
-                    diamonds, current_x, current_y, base, bot_position, visited)[0]
+                    diamonds, current_x, current_y - 1, base, bot_position, visited)[0]
             if (current_x - 1, current_y - 1) not in visited and current_x - 1 >= 0 and current_y - 1 >= 0:
                 points += self.recursive_search(
-                    diamonds, current_x, current_y, base, bot_position, visited)[0]
+                    diamonds, current_x - 1, current_y - 1, base, bot_position, visited)[0]
             if (current_x + 1, current_y - 1) not in visited and current_x + 1 < 15 and current_y - 1 >= 0:
                 points += self.recursive_search(
-                    diamonds, current_x, current_y, base, bot_position, visited)[0]
+                    diamonds, current_x + 1, current_y - 1, base, bot_position, visited)[0]
             if (current_x - 1, current_y + 1) not in visited and current_x - 1 >= 0 and current_y + 1 < 15:
                 points += self.recursive_search(
-                    diamonds, current_x, current_y, base, bot_position, visited)[0]
+                    diamonds, current_x - 1, current_y + 1, base, bot_position, visited)[0]
             if (current_x + 1, current_y + 1) not in visited and current_x + 1 < 15 and current_y + 1 < 15:
                 points += self.recursive_search(
-                    diamonds, current_x, current_y, base, bot_position, visited)[0]
+                    diamonds, current_x + 1, current_y + 1, base, bot_position, visited)[0]
 
         return points, visited
 
@@ -129,12 +132,20 @@ class Logic(object):
             props = board_bot.properties
             current_position = board_bot.position
             base = props.base
-
+            jarak_base = abs(base.x - current_position.x) + \
+                abs(base.y - current_position.y)
+            jarak_reset = abs(restart_button.position.x - current_position.x) + abs(restart_button.position.y -
+                                                                                    current_position.y) + abs(restart_button.position.x - base.x) + abs(restart_button.position.y - base.y)
             if props.diamonds == 5:  # jika diamond yang ditemukan sudah 5
-                self.goal_position = base
+                # jika jarak_reset lebih kecil dari jarak antara bot dan base
+                if jarak_reset + 1<= jarak_base:
+                    self.goal_position = restart_button.position
+                else:  # jika jarak_reset lebih besar dari jarak antara bot dan base
+                    self.goal_position = base
             else:  # jika diamond yang ditemukan belum 5
                 diamonds = board.diamonds
                 worth = 0
+                min_jarak = 999
                 calculated_diamonds = []
                 for diamond in diamonds:  # mencari diamond yang paling dekat dengan bot dan base
                     # jika diamond yang ditemukan sudah 4 dan point diamond yang ditemukan adalah 2
@@ -150,23 +161,47 @@ class Logic(object):
                     calculated_diamonds.append(diamond.position)
                     jarak = self.max_distance_base + self.max_distance_bot
                     if jarak != 0:
-                        jarak_reset = abs(restart_button.position.x - current_position.x) + abs(restart_button.position.y -
-                                                                                                current_position.y) + abs(restart_button.position.x - base.x) + abs(restart_button.position.y - base.y)
                         if point > 5 - props.diamonds:  # jika point lebih besar dari 5 dikurangi diamonds pada inventory
                             point = 5 - props.diamonds
-                        value = point / jarak
-                        worth = max(worth, value)
 
-                        if worth == value:  # jika worth sama dengan value
-                            self.goal_position = diamond.position
-                            # jika waktu yang tersisa kurang dari 20 detik dan jarak lebih besar dari waktu yang tersisa dibagi 1000
-                            if props.milliseconds_left < 30000 and jarak > props.milliseconds_left / 1000 and props.diamonds != 0:
+                        cari_terdekat = False
+                        value = point / jarak
+                        temp = worth
+                        worth = max(worth, value)
+                        min_jarak = min(min_jarak, jarak)
+
+                        if cari_terdekat or props.milliseconds_left < 15000:
+                            if jarak > props.milliseconds_left / 750 and props.diamonds != 0:
                                 self.goal_position = base
+                                cari_terdekat = True
+                            elif min_jarak == jarak:
+                                self.goal_position = diamond.position
+
+                        elif worth == value:  # jika worth sama dengan value
+
+                            if min_jarak < jarak and temp == worth:  # jika min_jarak sama dengan jarak
+                                print("sattt\n\n\n\n\n\n")
+                                continue
+                            self.goal_position = diamond.position
+                            # jika waktu yang tersisa kurang dari 30 detik dan jarak lebih besar dari waktu yang tersisa dibagi 1000
+                            if props.milliseconds_left < 30000:
+                                if jarak > props.milliseconds_left / 750 and props.diamonds != 0:
+                                    self.goal_position = base
+                                    cari_terdekat = True
+                                    continue
+                            # jika jarak_base kurang dari sama dengan jarak
+                            if jarak_base <= jarak and current_position != base and props.diamonds != 0:
+                                if (current_position.x > base.x > diamond.position.x or current_position.y > base.y > diamond.position.y or current_position.x < base.x < diamond.position.x or current_position.y < base.y < diamond.position.y):
+                                    print("base\n\n\n\n\n\n")
+                                    self.goal_position = base
                             elif jarak_reset != 0:  # jika jarak_reset tidak sama dengan 0
-                                worth_restart = 0.75 / jarak_reset
+                                worth_restart = 1 / jarak_reset
                                 # jika worth kurang dari worth_restart dan posisi restart_button tidak sama dengan posisi bot
                                 if worth < worth_restart and restart_button.position != current_position:
                                     self.goal_position = restart_button.position
+                            print("\n\na= ", point)
+                            print(jarak)
+                            print(self.max_distance_bot)
                     self.max_distance_base = 0
                     self.max_distance_bot = 0
             delta_x, delta_y = self.get_direction(  # mencari arah gerak bot
