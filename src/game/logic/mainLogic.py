@@ -132,13 +132,12 @@ class Logic(object):
             props = board_bot.properties
             current_position = board_bot.position
             base = props.base
-            jarak_base = abs(base.x - current_position.x) + \
-                abs(base.y - current_position.y)
+            jarak_base = abs(base.x - current_position.x) + abs(base.y - current_position.y)
             jarak_reset = abs(restart_button.position.x - current_position.x) + abs(restart_button.position.y -
                                                                                     current_position.y) + abs(restart_button.position.x - base.x) + abs(restart_button.position.y - base.y)
             if props.diamonds == 5:  # jika diamond yang ditemukan sudah 5
                 # jika jarak_reset lebih kecil dari jarak antara bot dan base
-                if jarak_reset + 1<= jarak_base:
+                if jarak_reset<= jarak_base + 1:
                     self.goal_position = restart_button.position
                 else:  # jika jarak_reset lebih besar dari jarak antara bot dan base
                     self.goal_position = base
@@ -171,7 +170,7 @@ class Logic(object):
                         min_jarak = min(min_jarak, jarak)
 
                         if cari_terdekat or props.milliseconds_left < 15000:
-                            if jarak > props.milliseconds_left / 750 and props.diamonds != 0:
+                            if jarak > props.milliseconds_left / 1000 and props.diamonds != 0:
                                 self.goal_position = base
                                 cari_terdekat = True
                             elif min_jarak == jarak:
@@ -185,7 +184,7 @@ class Logic(object):
                             self.goal_position = diamond.position
                             # jika waktu yang tersisa kurang dari 30 detik dan jarak lebih besar dari waktu yang tersisa dibagi 1000
                             if props.milliseconds_left < 30000:
-                                if jarak > props.milliseconds_left / 750 and props.diamonds != 0:
+                                if jarak > props.milliseconds_left / 1000 and props.diamonds != 0:
                                     self.goal_position = base
                                     cari_terdekat = True
                                     continue
