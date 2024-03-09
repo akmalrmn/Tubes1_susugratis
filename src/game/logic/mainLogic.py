@@ -146,6 +146,7 @@ class Logic(object):
                 worth = 0
                 min_jarak = 999
                 calculated_diamonds = []
+                cari_terdekat = False
                 for diamond in diamonds:  # mencari diamond yang paling dekat dengan bot dan base
                     # jika diamond yang ditemukan sudah 4 dan point diamond yang ditemukan adalah 2
                     if props.diamonds == 4 and diamond.properties.points == 2:
@@ -163,27 +164,34 @@ class Logic(object):
                         if point > 5 - props.diamonds:  # jika point lebih besar dari 5 dikurangi diamonds pada inventory
                             point = 5 - props.diamonds
 
-                        cari_terdekat = False
                         value = point / jarak
                         temp = worth
                         worth = max(worth, value)
                         min_jarak = min(min_jarak, jarak)
 
-                        if cari_terdekat:
-                            if min_jarak == jarak:
+                        if cari_terdekat and min_jarak == jarak:
+                            if jarak > props.milliseconds_left / 1000 and props.diamonds != 0:
+                                if jarak_reset <= jarak_base + 4 and jarak_reset+4 <= props.milliseconds_left/1000:
+                                    self.goal_position = restart_button.position
+                                else:
+                                    self.goal_position = base
+                                    cari_terdekat = True
+                            else:
                                 self.goal_position = diamond.position
 
-                        if worth == value:  # jika worth sama dengan value
+                        # jika worth sama dengan value
+                        if worth == value and not (cari_terdekat):
                             self.goal_position = diamond.position
                             # jika waktu yang tersisa kurang dari 30 detik dan jarak lebih besar dari waktu yang tersisa dibagi 1000
                             if props.milliseconds_left < 30000:
-                                if min_jarak == jarak:
-                                    self.goal_position = diamond.position
-                                if jarak > props.milliseconds_left / 1000 and props.diamonds != 0:
-                                    if jarak_reset <= jarak_base + 4 and jarak_reset+4 <= props.milliseconds_left/1000:
-                                        self.goal_position = restart_button.position
+                                if jarak > props.milliseconds_left / 1000:
+                                    if props.diamonds != 0:
+                                        if jarak_reset <= jarak_base + 4 and jarak_reset+4 <= props.milliseconds_left/1000:
+                                            self.goal_position = restart_button.position
+                                        else:
+                                            self.goal_position = base
+                                            cari_terdekat = True
                                     else:
-                                        self.goal_position = base
                                         cari_terdekat = True
                             # jika jarak_base kurang dari sama dengan jarak
                             if jarak_base <= jarak and current_position != base and props.diamonds != 0:
